@@ -9,15 +9,33 @@ export const hashPassword = async (password) => {
     return await bcrypt.hash(password, 10);
 };
 
-export const createJWT = async (user: any) => {
+export const create_ACCESS_JWT = async (user: any) => {
     const token = await jwt.sign(
         {
             id: user.id,
             username: user.username,
         },
-        process.env.JWT_SECRET,
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "15s" }
     );
     return token;
+};
+
+export const create_REFRESH_JWT = async (user: any) => {
+    const token = await jwt.sign(
+        {
+            id: user.id,
+            username: user.username,
+        },
+        process.env.REFRESH_TOKEN_SECRET
+    );
+    return token;
+};
+
+export const create_TOKENS = async (user: any) => {
+    const ACCESS_TOKEN = await create_ACCESS_JWT(user);
+    const REFRESH_TOKEN = await create_REFRESH_JWT(user);
+    return { ACCESS_TOKEN, REFRESH_TOKEN };
 };
 
 export const protectRoute = (req, res, next) => {
@@ -38,7 +56,7 @@ export const protectRoute = (req, res, next) => {
     }
 
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET);
+        const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         req.user = user;
     } catch (e) {
         console.log(e);

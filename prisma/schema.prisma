@@ -21,6 +21,15 @@ model User {
 model MainData {
     id              String           @id @default(uuid())
     sandwiches      Sandwich[]
+    refresh_tokens  refresh_token[]
+}
+
+model refresh_token {
+    id              String           @id @default(uuid())
+    token           String           @unique
+    createdAt       DateTime         @default(now())
+    belongsToId     String
+    belongsToData   MainData         @relation(fields: [belongsToId], references: [id])
 }
 
 model Sandwich {

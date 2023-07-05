@@ -2,9 +2,22 @@ import { NextFunction, Request, Response } from 'express';
 import prisma from "../db";
 import path from "path";
 
+export const getSandwiches = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const sandwiches = await prisma.sandwich.findMany();
+        req.sandwiches = sandwiches;
+        next();
+    } catch (e) {
+        console.log(e);
+        res.status(401);
+        res.send({ message: "Well you are sandwichless" });
+        return;
+    }
+}
+
 export const allSandwiches = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sandwiches = await prisma.mainData.findMany();
+        const sandwiches = await prisma.sandwich.findMany();
         res.json(sandwiches);
     } catch (e) {
         console.log(e);
@@ -72,14 +85,15 @@ export const UpdateSandwich = async (req: Request, res: Response, next: NextFunc
     }
 }
 
-export const UpdateSandwichImage = async (req: any, res: Response, next: NextFunction) => {
+export const UpdateSandwichRating = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const sandwich = await prisma.sandwich.update({
             where: {
                 id: req.params.id
             },
             data: {
-                image: path.extname(req.file.originalname)
+                rating: req.body.rating,
+                numReviews: req.body.numReviews,
             }
         });
         res.json(sandwich);
@@ -90,7 +104,6 @@ export const UpdateSandwichImage = async (req: any, res: Response, next: NextFun
         return;
     }
 }
-
 
 export const DeleteSandwich = async (req: Request, res: Response, next: NextFunction) => {
     try {

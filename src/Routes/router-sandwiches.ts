@@ -1,7 +1,7 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { body } from "express-validator";
 import { handleError } from "../modules/middleware";
-import { allSandwiches } from "../handlers/sandwich";
+import { DeleteSandwich, UpdateSandwich, allSandwiches, getSandwich } from "../handlers/sandwich";
 import multer from "multer";
 import path from "path";
 
@@ -10,10 +10,10 @@ import { CreateSandwich } from "../handlers/sandwich";
 const router = Router();
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: function (_: Request, file, cb) {
         cb(null, './uploads/');
     },
-    filename: function (req, file, cb) {
+    filename: function (_: Request, file, cb: (error: (Error | null), filename: string) => void) {
         cb(null, path.extname(file.originalname));
     }
 });
@@ -21,14 +21,14 @@ const upload = multer({ storage: storage });
 
 router.get("/", allSandwiches);
 
-router.post("/", body("name").isString(), handleError, upload.single("image"), CreateSandwich)
+router.get("/:id", getSandwich);
 
-router.delete("/", (req, res) => {
-    res.send("Hello World!");
-});
+router.post("/image", upload.single("image"));
 
-router.put("/", (req, res) => {
-    res.send("Hello World!");
-});
+router.post("/", body("name").isString(), handleError, CreateSandwich)
+
+router.delete("/", DeleteSandwich);
+
+router.put("/", UpdateSandwich);
 
 export default router;
