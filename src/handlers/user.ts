@@ -5,6 +5,7 @@ import {
   comparePasswords,
   create_TOKENS,
   create_ACCESS_JWT,
+  Invalidate_REFRESH_TOKEN,
 } from "../modules/auth";
 import jwt from "jsonwebtoken";
 
@@ -20,10 +21,20 @@ export const createNewUser_user = async (
       },
     });
 
+    const emailCheck = await prisma.user_shop.findUnique({
+        where: {
+            email: req.body.email,
+        },
+    });
+
     if (userCheck) {
       res.status(409);
       res.json({ message: "Username already exists" });
       return;
+    } else if (emailCheck) {
+        res.status(409);
+        res.json({ message: "Email already exists" });
+        return;
     }
 
     const user = await prisma.user_shop.create({
@@ -39,6 +50,7 @@ export const createNewUser_user = async (
       },
     });
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET);
+    
     res.json({
       ACCESS_TOKEN: token.ACCESS_TOKEN,
       REFRESH_TOKEN: token.REFRESH_TOKEN,
@@ -63,7 +75,7 @@ export const signIn_user = async (
 
     if (!user) {
       res.status(401);
-      res.json({ message: "Invalid email" });
+      res.json({ message: "Invalid name" });
       return;
     }
 
@@ -75,14 +87,9 @@ export const signIn_user = async (
       return;
     }
 
-    const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET);
+    await Invalidate_REFRESH_TOKEN(user);
 
-    await prisma.refresh_token.create({
-      data: {
-        token: token.REFRESH_TOKEN,
-        belongsToId: user.id,
-      },
-    });
+    const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET);
 
     res.json({
       REFRESH_TOKEN: token.REFRESH_TOKEN,
@@ -119,6 +126,7 @@ export const createNewUser_admin = async (
       },
     });
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET_ADMIN, process.env.REFRESH_TOKEN_SECRET_ADMIN);
+    
     res.json({
       ACCESS_TOKEN: token.ACCESS_TOKEN,
       REFRESH_TOKEN: token.REFRESH_TOKEN,
@@ -155,14 +163,9 @@ export const signIn_admin = async (
       return;
     }
 
-    const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET_ADMIN, process.env.REFRESH_TOKEN_SECRET_ADMIN);
+    await Invalidate_REFRESH_TOKEN(process.env.REFRESH_TOKEN_SECRET_ADMIN);
 
-    await prisma.refresh_token.create({
-      data: {
-        token: token.REFRESH_TOKEN,
-        belongsToId: user.id,
-      },
-    });
+    const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET_ADMIN, process.env.REFRESH_TOKEN_SECRET_ADMIN);
 
     res.json({
       REFRESH_TOKEN: token.REFRESH_TOKEN,

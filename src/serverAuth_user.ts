@@ -3,12 +3,12 @@ import cors from "cors";
 import {
   createNewUser_user,
   signIn_user,
-  token_refresh,
+  token_refresh_shop
 } from "./handlers/user";
 import { body } from "express-validator";
 import { handleError } from "./modules/middleware";
 import morgan from "morgan";
-import { delete_REFRESH_TOKEN } from "./modules/auth";
+import { Invalidate_REFRESH_TOKEN } from "./modules/auth";
 
 const app = express();
 
@@ -19,15 +19,15 @@ app.use(morgan("dev"));
 
 app.post(
   "/auth_user/login",
-  body("name").isString().isLength({ min: 3, max: 30 }),
-  body("password").isString().isLength({ min: 1 }),
+  body("name").isString().isLength({ min: 3, max: 100 }),
+  body("password").isString().isLength({ min: 8 }),
   handleError,
   signIn_user
 );
 app.post(
   "/auth_user/signup",
-  body("name").isString().isLength({ min: 3, max: 30 }),
-  body("password").isString().isLength({ min: 1 }),
+  body("name").isString().isLength({ min: 3, max: 100 }),
+  body("password").isString().isLength({ min: 8 }),
   body("email").isString().isEmail().isLength({ min: 1 }),
   body("phone").isNumeric().isLength({ min: 1 }),
   body("address").isString().isLength({ min: 1 }),
@@ -38,7 +38,19 @@ app.post(
   createNewUser_user
 );
 
-app.post("/auth_user/token", token_refresh);
-app.delete("/auth_user/logout", delete_REFRESH_TOKEN);
+app.post("/auth_user/token", token_refresh_shop);
+app.delete("/auth_user/logout/:id", (req, res) => {
+    try {
+        Invalidate_REFRESH_TOKEN({ id: req.params.id});
+        res.status(200);
+        res.json({ message: "Logged out" });
+        return;
+    } catch (e) {
+        console.log(e);
+        res.status(500);
+        res.json({ message: "Error" });
+        return;
+    }
+});
 
 export default app;

@@ -1,8 +1,7 @@
 import express from "express";
-import router from "./Routes/router-api";
 import sandwich_router from "./Routes/router-sandwiches";
 import cors from "cors";
-import { protectRoute, protect_api_route } from "./modules/auth";
+import { protect_api_route } from "./modules/auth";
 import morgan from "morgan";
 import { getSandwiches } from "./handlers/sandwich";
 

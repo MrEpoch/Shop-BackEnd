@@ -72,11 +72,11 @@ export const delete_REFRESH_TOKEN = async (token: string) => {
   }
 };
 
-export const Invalidate_REFRESH_TOKEN = async (token: string) => {
+export const Invalidate_REFRESH_TOKEN = async (user) => {
     try {
-        await prisma.refresh_token.update({
+        await prisma.refresh_token.updateMany({
             where: {
-                token: token,
+                belongsToId: user.id,
             },
             data: {
                 valid: false,
@@ -203,9 +203,9 @@ export const protect_token_creation__admin = async (req, res, next) => {
     res.status(200);
     res.send({ ACCESS_TOKEN });
   } catch (e) {
-    console.log(e);
-    res.status(401);
-    res.send({ message: "Not authorized for connection" });
-    return;
-  }
+        console.log(e);
+        res.status(401);
+        res.send({ message: "Not authorized for connection" });
+        return;
+    }
 };

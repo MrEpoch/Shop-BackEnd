@@ -12,7 +12,7 @@ export const Update_Favourites = async (
         id: req.user.id,
       },
       data: {
-        favourites: req.body.favourites,
+        favouritesId: req.body.favourites,
       },
     });
     res.json(user_shop);

@@ -25,7 +25,7 @@ export const Create_comment = async (
   try {
     const comment = await prisma.comment.create({
       data: {
-        title: req.body.name,
+        title: req.body.title,
         rating: req.body.rating,
         comment: req.body.comment,
         belongsToSandwichId: req.body.sandwichId,
@@ -54,7 +54,11 @@ export const Update_comment = async (
       where: {
         id: req.params.id,
       },
-      data: {},
+      data: {
+        title: req.body.title,
+        rating: req.body.rating,
+        comment: req.body.comment,
+      },
     });
     res.json(comment);
   } catch (e) {
