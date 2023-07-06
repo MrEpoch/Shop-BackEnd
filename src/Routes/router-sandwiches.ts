@@ -3,7 +3,11 @@ import { body } from "express-validator";
 import { handleError } from "../modules/middleware";
 import { allSandwiches, getSandwich } from "../handlers/sandwich";
 
-import { Create_comment, Delete_comment, Update_comment } from "../handlers/comments";
+import {
+  Create_comment,
+  Delete_comment,
+  Update_comment,
+} from "../handlers/comments";
 import { Update_Favourites } from "../handlers/favourites";
 
 const router = Router();
@@ -12,7 +16,7 @@ router.get("/", allSandwiches);
 
 router.get("/:id", getSandwich);
 
-router.put("/favourite",  Update_Favourites);
+router.put("/favourite", Update_Favourites);
 
 router.put("/comment/:id", Update_comment);
 

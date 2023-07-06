@@ -12,7 +12,7 @@ datasource db {
 
 model User_admin {
   id              String           @id @default(uuid())
-  username        String           @unique @db.VarChar(30)
+  name            String           @unique @db.VarChar(30)
   password        String           @unique
   createdAt       DateTime         @default(now())
 
