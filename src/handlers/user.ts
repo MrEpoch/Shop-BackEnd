@@ -3,38 +3,33 @@ import prisma from "../db";
 import { hashPassword, comparePasswords, create_TOKENS, create_ACCESS_JWT } from "../modules/auth";
 import jwt from "jsonwebtoken";
 
-export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createNewUser_user = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userCheck = await prisma.user.findUnique({
+        const userCheck = await prisma.user_shop.findUnique({
             where: {
-                username: req.body.username,
+                name: req.body.name,
             }
         });
-
-        const emailCheck = await prisma.user.findUnique({
-            where: {
-                email: req.body.email,
-            }
-        });
-
-        if (emailCheck) {
-            res.status(409);
-            res.json({ message: "Email already exists" });
-            return;
-        } else if (userCheck) {
+        
+        if (userCheck) {
             res.status(409);
             res.json({ message: "Username already exists" });
             return;
         }
 
-        const user = await prisma.user.create({
+        const user = await prisma.user_shop.create({
             data: {
-                username: req.body.username,
+                name: req.body.username,
                 email: req.body.email,
+                phone: req.body.phone,
+                address: req.body.address,
+                city: req.body.city,
+                postalCode: req.body.postalCode,
+                country: req.body.country,
                 password: await hashPassword(req.body.password),
             }
         });
-        const token = await create_TOKENS(user);
+        const token = await create_TOKENS({ id: user.id, username: user.name });
         res.json({ ACCESS_TOKEN: token.ACCESS_TOKEN, REFRESH_TOKEN: token.REFRESH_TOKEN});
     } catch (e) {
         e.type = "signUp";
@@ -42,11 +37,11 @@ export const createNewUser = async (req: Request, res: Response, next: NextFunct
     } 
 };
 
-export const signIn = async (req: Request, res: Response, next: NextFunction) => {
+export const signIn_user = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.user_shop.findUnique({
             where: {
-                email: req.body.name,
+                name: req.body.name,
             }
         });
 
@@ -64,7 +59,7 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
             return;
         }
 
-        const token = await create_TOKENS(user);
+        const token = await create_TOKENS({ id: user.id, username: user.name });
         
         await prisma.refresh_token.create({
             data: {
@@ -79,6 +74,72 @@ export const signIn = async (req: Request, res: Response, next: NextFunction) =>
         next(e);
     }
 };
+
+export const createNewUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userCheck = await prisma.user.findUnique({
+            where: {
+                username: req.body.username,
+            }
+        });
+        
+        if (userCheck) {
+            res.status(409);
+            res.json({ message: "Username already exists" });
+            return;
+        }
+
+        const user = await prisma.user.create({
+            data: {
+                username: req.body.username,
+                password: await hashPassword(req.body.password),
+            }
+        });
+        const token = await create_TOKENS({ id: user.id, username: user.username });
+        res.json({ ACCESS_TOKEN: token.ACCESS_TOKEN, REFRESH_TOKEN: token.REFRESH_TOKEN});
+    } catch (e) {
+        e.type = "signUp";
+        next(e);
+    } 
+};
+
+export const signIn = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                username: req.body.username,
+            }
+        });
+
+        if (!user) {
+            res.status(401);
+            res.json({ message: "Invalid email" });
+            return;
+        }
+
+        const isValid = await comparePasswords(req.body.password, user.password);
+
+        if (!isValid) {
+            res.status(401);
+            res.json({ message: "Invalid password" });
+            return;
+        }
+
+        const token = await create_TOKENS({ id: user.id, username: user.username });
+        
+        await prisma.refresh_token.create({
+            data: {
+                token: token.REFRESH_TOKEN,
+                belongsToId: user.id,
+            }
+        });
+
+        res.json({ REFRESH_TOKEN: token.REFRESH_TOKEN, ACCESS_TOKEN: token.ACCESS_TOKEN });
+    } catch (e) {
+        e.type = "signIn";
+        next(e);
+    }
+}; 
 
 export const token_refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -107,7 +168,10 @@ export const token_refresh = async (req: Request, res: Response, next: NextFunct
                 res.json({ message: "Invalid token" });
                 return;
             }
-            const accessToken = create_ACCESS_JWT(user);
+            const accessToken = create_ACCESS_JWT({
+                id: user.id,
+                username: user.username, 
+            });
             res.json({ ACCESS_TOKEN: accessToken });
         });
     } catch (e) {

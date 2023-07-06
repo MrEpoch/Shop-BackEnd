@@ -10,18 +10,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model User_admin {
   id              String           @id @default(uuid())
   username        String           @unique @db.VarChar(30)
-  email           String           @unique
   password        String           @unique
   createdAt       DateTime         @default(now())
+
+  banned          Boolean          @default(false)
 }
 
-model MainData {
+model User_shop {
     id              String           @id @default(uuid())
-    sandwiches      Sandwich[]
-    refresh_tokens  refresh_token[]
+    name            String           @unique
+    password        String           @unique
+    
+    createdAt       DateTime         @default(now())
+    
+    email           String           @unique
+    phone           String           @unique
+    address         String
+    city            String
+    postalCode      String
+    country         String
+    
+    favouritesId      String[]        @default([])
+    banned          Boolean          @default(false)
 }
 
 model refresh_token {
@@ -29,7 +42,8 @@ model refresh_token {
     token           String           @unique
     createdAt       DateTime         @default(now())
     belongsToId     String
-    belongsToData   MainData         @relation(fields: [belongsToId], references: [id])
+
+    valid           Boolean          @default(true)
 }
 
 model Sandwich {
@@ -41,9 +55,20 @@ model Sandwich {
     rating          Float            @default(0)
     numReviews      Int              @default(0)
     countInStock    Int              @default(0)
+    comments        Comment[]
+}
 
+model Comment {
+    id              String           @id @default(uuid())
+    title           String
+    rating          Float            @default(0)
+    comment         String
+    createdAt       DateTime         @default(now())
+    
+    sandwich        Sandwich         @relation(fields: [belongsToId], references: [id])
+
+    belongsToSandwichId String
     belongsToId     String
-    belongsToData   MainData         @relation(fields: [belongsToId], references: [id])
 }
 
 

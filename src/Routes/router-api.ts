@@ -1,29 +1,29 @@
-import { Router } from "express";
+import { Router, Request } from "express";
 import { body } from "express-validator";
 import { handleError } from "../modules/middleware";
+import multer from "multer";
+import path from "path";
+import { CreateSandwich, UpdateSandwich } from "../handlers/sandwich";
+import { signIn } from "../handlers/user";
 
 const router = Router();
 
-router.get("/", (_, res) => {
-    res.send(true);
+const storage = multer.diskStorage({
+    destination: function (_: Request, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (_: Request, file, cb: (error: (Error | null), filename: string) => void) {
+        cb(null, path.extname(file.originalname));
+    }
 });
+const upload = multer({ storage: storage });
 
-router.get("/sandwiches", );
+router.post("/image", upload.single("image"));
 
-router.get("/sandwich", (_, res) => {
-    res.send("Hello World!");
-});
+router.post("/", body("name").isString(), handleError, CreateSandwich)
 
-router.post("/sandwich", body("name").isString(), handleError, (_, res) => {
-    res.send("Hello World!");
-});
+router.put("/:id", body("name").isString(), handleError, UpdateSandwich)
 
-router.delete("/sandwich", (_, res) => {
-    res.send("Hello World!");
-});
-
-router.put("/sandwich", (_, res) => {
-    res.send("Hello World!");
-});
+router.post("/create_account", body("name").isString(), handleError, signIn)
 
 export default router;
