@@ -87,7 +87,15 @@ export const signIn_user = async (
       return;
     }
 
-    await Invalidate_REFRESH_TOKEN(user);
+    await prisma.refresh_token.updateMany({
+        where: {
+            belongsToId: user.id,
+        },
+        data: {
+            valid: false,
+        },
+    });
+
 
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET);
 
@@ -163,7 +171,14 @@ export const signIn_admin = async (
       return;
     }
 
-    await Invalidate_REFRESH_TOKEN(process.env.REFRESH_TOKEN_SECRET_ADMIN);
+    await prisma.refresh_token.updateMany({
+        where: {
+            belongsToId: user.id,
+        },
+        data: {
+            valid: false,
+        },
+    });
 
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET_ADMIN, process.env.REFRESH_TOKEN_SECRET_ADMIN);
 
@@ -261,8 +276,9 @@ export const token_refresh_admin = async (
         const accessToken = create_ACCESS_JWT({
           id: user.id,
           name: user.name,
-        }, process.env.ACCESS_TOKEN_SECRET_ADMIN);
-        res.json({ ACCESS_TOKEN: accessToken });
+        }, process.env.ACCESS_TOKEN_SECRET_ADMIN).then((accessToken) => {
+            res.json({ ACCESS_TOKEN: accessToken });
+        });
       }
     );
   } catch (e) {

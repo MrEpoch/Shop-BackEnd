@@ -1,4 +1,4 @@
-import app_auth from "./serverAuth";
+import app_auth from "./serverAuth_user";
 import * as dotenv from "dotenv";
 dotenv.config();
 

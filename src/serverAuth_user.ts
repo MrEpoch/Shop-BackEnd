@@ -39,9 +39,10 @@ app.post(
 );
 
 app.post("/auth_user/token", token_refresh_shop);
-app.delete("/auth_user/logout/:id", (req, res) => {
+
+app.post("/auth_user/logout", async (req, res) => {
     try {
-        Invalidate_REFRESH_TOKEN({ id: req.params.id});
+        await Invalidate_REFRESH_TOKEN(req.body.token);
         res.status(200);
         res.json({ message: "Logged out" });
         return;

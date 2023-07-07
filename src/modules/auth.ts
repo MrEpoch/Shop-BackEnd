@@ -72,19 +72,29 @@ export const delete_REFRESH_TOKEN = async (token: string) => {
   }
 };
 
-export const Invalidate_REFRESH_TOKEN = async (user) => {
-    try {
-        await prisma.refresh_token.updateMany({
+export const Invalidate_REFRESH_TOKEN = async (token: string) => {
+        const tokenStatus = await prisma.refresh_token.findUnique({
             where: {
-                belongsToId: user.id,
+                token: token
+            },
+        });
+
+        if (!tokenStatus) {
+            throw new Error("Token not found");
+        }
+
+        if (!tokenStatus.valid) {
+            throw new Error("Token already invalid");
+        }
+
+        await prisma.refresh_token.update({
+            where: {
+                token: token
             },
             data: {
                 valid: false,
             },
         });
-    } catch (e) {
-        console.log(e);
-    } 
 };
 
 export const protect_api_route = (req, res, next) => {
@@ -109,6 +119,7 @@ export const protect_api_route = (req, res, next) => {
   try {
     const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
     req.user = user;
+    next();
   } catch (e) {
     console.log(e);
     res.status(401);
@@ -128,6 +139,8 @@ export const protect_sandwich_route = (req, res, next) => {
     return;
   }
 
+
+
   const [, token] = bearer.split(" ");
 
   if (!token) {
@@ -139,6 +152,7 @@ export const protect_sandwich_route = (req, res, next) => {
   try {
     const user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     req.user = user;
+    next();
   } catch (e) {
     console.log(e);
     res.status(401);

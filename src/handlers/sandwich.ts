@@ -26,6 +26,10 @@ export const allSandwiches = async (
 ) => {
   try {
     const sandwiches = await prisma.sandwich.findMany();
+    if (sandwiches.length === 0) { 
+        res.json([]);
+        return;
+    }
     res.json(sandwiches);
   } catch (e) {
     console.log(e);
@@ -66,7 +70,7 @@ export const CreateSandwich = async (
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
-        image: path.extname(req.file.originalname),
+        image: req.body.image,
       },
     });
     res.json(sandwich);

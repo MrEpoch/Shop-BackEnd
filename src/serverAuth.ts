@@ -16,7 +16,7 @@ app.use(morgan("dev"));
 
 app.post(
   "/auth/login",
-  body("name").isString().isLength({ min: 3, max: 30 }),
+  body("name").isString().isLength({ min: 3, max: 100 }),
   body("password").isString().isLength({ min: 8 }),
   handleError,
   signIn_admin
@@ -24,16 +24,16 @@ app.post(
 
 app.post("/auth/token", token_refresh_admin);
 
-app.delete("/auth/logout/:id", async (req, res) => {
+app.post("/auth/logout/", async (req, res) => {
     try {
-        await Invalidate_REFRESH_TOKEN({ id: req.params.id});
+        await Invalidate_REFRESH_TOKEN(req.body.token);
         res.status(200);
         res.json({ message: "Logged out" });
         return;
     } catch (e) {
         console.log(e);
-        res.status(500);
-        res.json({ message: "Error" });
+        res.status(404);
+        res.json({ message: "Error, probably your token doesn't exist or is already expired" });
         return;
     }
 });
