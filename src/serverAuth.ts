@@ -39,5 +39,6 @@ app.post("/auth/logout/", async (req, res) => {
 });
 
 app.use("/auth/api", protect_api_route, router);
+app.use('/uploads', express.static('uploads'));
 
 export default app;

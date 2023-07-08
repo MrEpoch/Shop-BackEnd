@@ -1,12 +1,13 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import prisma from "../db";
+import { NextFunction, Request, Response } from "express";
 
-export const comparePasswords = async (password, hashedPassword) => {
+export const comparePasswords = async (password: string, hashedPassword: string) => {
   return await bcrypt.compare(password, hashedPassword);
 };
 
-export const hashPassword = async (password) => {
+export const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
 };
 
@@ -17,7 +18,7 @@ export const create_ACCESS_JWT = async (user: any, salt: string) => {
       name: user.name,
     },
     salt,
-    { expiresIn: "15s" }
+    { expiresIn: "1m" }
   );
   return token;
 };
@@ -97,7 +98,7 @@ export const Invalidate_REFRESH_TOKEN = async (token: string) => {
         });
 };
 
-export const protect_api_route = (req, res, next) => {
+export const protect_api_route = (req: any, res: Response, next: NextFunction) => {
   const bearer = req.headers.authorization;
 
   if (!bearer) {
@@ -128,7 +129,7 @@ export const protect_api_route = (req, res, next) => {
   }
 };
 
-export const protect_sandwich_route = (req, res, next) => {
+export const protect_sandwich_route = (req: any, res: Response, next: NextFunction) => {
   const bearer = req.headers.authorization;
 
   if (!bearer) {
@@ -161,7 +162,7 @@ export const protect_sandwich_route = (req, res, next) => {
   }
 };
 
-export const protect_token_creation__admin = async (req, res, next) => {
+export const protect_token_creation__admin = async (req: any, res: Response) => {
   const bearer = req.headers.authorization;
 
   if (!bearer) {

@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { handleError } from "../modules/middleware";
 import multer from "multer";
 import path from "path";
-import { CreateSandwich, DeleteSandwich, UpdateSandwich, allSandwiches, getSandwich } from "../handlers/sandwich";
+import { CreateSandwich, DeleteSandwich, UpdateSandwich, allSandwiches, getSandwich, UpdateSandwich_noImage } from "../handlers/sandwich";
 import { createNewUser_admin } from "../handlers/user";
 
 const router = Router();
@@ -40,6 +40,10 @@ router.post("/image", upload.single("image"), (req, res, next) => {
     res.send("Image uploaded");
 });
 
+router.put("/image/", upload.single("image"), (req, res, next) => {
+    res.send("Image uploaded");
+});
+
 router.post("/", 
     body("name").isString(),
     body("description").isString(),
@@ -55,6 +59,14 @@ router.put("/:id",
     body("rating").isNumeric(),
     body("numReviews").isInt(),
         handleError, UpdateSandwich);
+
+router.put("/no-image/:id",
+    body("name").isString(),
+    body("description").isString(),
+    body("price").isString(),
+    body("rating").isNumeric(),
+    body("numReviews").isInt(),
+        handleError, UpdateSandwich_noImage) ;
 
 router.post("/create_account", body("name").isString().isLength({ min: 3, max: 30 }),body("password").isString().isLength({min: 8}) , handleError, createNewUser_admin);
 

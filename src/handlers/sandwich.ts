@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import prisma from "../db";
 import path from "path";
+import fs from "fs";
 
 export const getSandwiches = async (
   req: any,
@@ -65,12 +66,14 @@ export const CreateSandwich = async (
   next: NextFunction
 ) => {
   try {
+    const url = req.protocol + "://" + req.get("host");
+    const filtered_path = req.body.image.toLowerCase().split(" ").join("-");
     const sandwich = await prisma.sandwich.create({
       data: {
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
-        image: req.body.image,
+        image: url + "/uploads/" + filtered_path,
       },
     });
     res.json(sandwich);
@@ -88,6 +91,8 @@ export const UpdateSandwich = async (
   next: NextFunction
 ) => {
   try {
+    const url = req.protocol + "://" + req.get("host");
+    const filtered_path = req.body.image.toLowerCase().split(" ").join("-");
     const sandwich = await prisma.sandwich.update({
       where: {
         id: req.params.id,
@@ -97,9 +102,20 @@ export const UpdateSandwich = async (
         description: req.body.description,
         price: req.body.price,
         rating: req.body.rating,
+        image: url + "/uploads/" + filtered_path,
         numReviews: req.body.numReviews,
       },
     });
+
+    fs.unlink(
+        path.join(__dirname, "../../uploads/" + req.body.oldImage),
+        (err) => {
+            if (err) {
+                console.log(err);
+            }
+        }
+    );
+
     res.json(sandwich);
   } catch (e) {
     console.log(e);
@@ -109,8 +125,8 @@ export const UpdateSandwich = async (
   }
 };
 
-export const UpdateSandwichImage = async (
-    req: any,
+export const UpdateSandwich_noImage = async (
+    req: Request,
     res: Response,
     next: NextFunction
 ) => {
@@ -120,7 +136,9 @@ export const UpdateSandwichImage = async (
                 id: req.params.id,
             },
             data: {
-                image: path.extname(req.file.originalname),
+                name: req.body.name,
+                description: req.body.description,
+                price: req.body.price,
             },
         });
         res.json(sandwich);

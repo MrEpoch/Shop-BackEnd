@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE "Sandwich" ALTER COLUMN "rating" SET DEFAULT 0,
-ALTER COLUMN "numReviews" SET DEFAULT 0,
-ALTER COLUMN "countInStock" SET DEFAULT 0;

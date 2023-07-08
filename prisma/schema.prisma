@@ -51,7 +51,7 @@ model Sandwich {
     name            String
     description     String
     image           String
-    price           Float 
+    price           String 
     rating          Int              @default(0)
     numReviews      Int              @default(0)
     countInStock    Int              @default(0)
