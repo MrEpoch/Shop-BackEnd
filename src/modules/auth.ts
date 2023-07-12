@@ -40,6 +40,7 @@ export const create_REFRESH_JWT = async (user: any, salt: string) => {
         name: user.name,
       },
       salt,
+      { expiresIn: "3d"}
     );
 
     await prisma.refresh_token.create({

@@ -97,6 +97,12 @@ export const signIn_user = async (
     });
 
 
+    if (user.banned) {
+        res.status(401);
+        res.json({ message: "You have been banned" });
+        return;
+    }
+
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET);
 
     res.json({
@@ -179,6 +185,13 @@ export const signIn_admin = async (
             valid: false,
         },
     });
+
+    if (user.banned) {
+        res.status(401);
+        res.json({ message: "You have been banned" });
+        return;
+    }
+
 
     const token = await create_TOKENS({ id: user.id, name: user.name }, process.env.ACCESS_TOKEN_SECRET_ADMIN, process.env.REFRESH_TOKEN_SECRET_ADMIN);
 

@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import prisma from "../db";
 import path from "path";
 import fs from "fs";
+// @ts-ignore
+const CryptoJS = require("crypto-js");
 
 export const getSandwiches = async (
   req: any,
@@ -68,11 +70,13 @@ export const CreateSandwich = async (
   try {
     const url = req.protocol + "://" + req.get("host");
     const filtered_path = req.body.image.toLowerCase().split(" ").join("-");
+    
     const sandwich = await prisma.sandwich.create({
       data: {
         name: req.body.name,
         description: req.body.description,
         price: req.body.price,
+        stripePriceId: req.body.stripeId,
         image: url + "/uploads/" + filtered_path,
       },
     });

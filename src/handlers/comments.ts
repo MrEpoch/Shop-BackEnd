@@ -29,7 +29,7 @@ export const Create_comment = async (
         rating: req.body.rating,
         comment: req.body.comment,
         belongsToSandwichId: req.body.sandwichId,
-        belongsToId: req.body.userId,
+        belongsToId: req.user.id,
       },
     });
     res.json(comment);
