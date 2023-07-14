@@ -18,14 +18,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 app.post(
-  "/auth_user/login",
+  "/auth-user/login",
   body("name").isString().isLength({ min: 3, max: 100 }),
   body("password").isString().isLength({ min: 8 }),
   handleError,
   signIn_user
 );
 app.post(
-  "/auth_user/signup",
+  "/auth-user/signup",
   body("name").isString().isLength({ min: 3, max: 100 }),
   body("password").isString().isLength({ min: 8 }),
   body("email").isString().isEmail().isLength({ min: 1 }),
@@ -38,9 +38,9 @@ app.post(
   createNewUser_user
 );
 
-app.post("/auth_user/token", token_refresh_shop);
+app.post("/auth-user/token", token_refresh_shop);
 
-app.post("/auth_user/logout", async (req, res) => {
+app.post("/auth-user/logout", async (req, res) => {
     try {
         await Invalidate_REFRESH_TOKEN(req.body.token);
         res.status(200);

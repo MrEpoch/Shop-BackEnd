@@ -4,7 +4,7 @@ import { handleError } from "../modules/middleware";
 import multer from "multer";
 import path from "path";
 import { CreateSandwich, DeleteSandwich, UpdateSandwich, allSandwiches, getSandwich, UpdateSandwich_noImage } from "../handlers/sandwich";
-import { createNewUser_admin } from "../handlers/user";
+import { Delete_user_shop, createNewUser_admin } from "../handlers/user";
 
 const router = Router();
 
@@ -47,7 +47,7 @@ router.put("/image/", upload.single("image"), (req, res, next) => {
 router.post("/", 
     body("name").isString(),
     body("description").isString(),
-    body("price").isString(),
+    body("price").isFloat(),
     body("image").isString(),
         CreateSandwich);
 
@@ -55,7 +55,7 @@ router.post("/",
 router.put("/:id", 
     body("name").isString(),
     body("description").isString(),
-    body("price").isString(),
+    body("price").isFloat(),
     body("rating").isNumeric(),
     body("numReviews").isInt(),
         handleError, UpdateSandwich);
@@ -63,7 +63,7 @@ router.put("/:id",
 router.put("/no-image/:id",
     body("name").isString(),
     body("description").isString(),
-    body("price").isString(),
+    body("price").isFloat(),
     body("rating").isNumeric(),
     body("numReviews").isInt(),
         handleError, UpdateSandwich_noImage) ;
@@ -72,4 +72,5 @@ router.post("/create_account", body("name").isString().isLength({ min: 3, max: 3
 
 router.delete("/sandwich/:id", DeleteSandwich);
 
+router.delete("/shop_user/:id", Delete_user_shop);
 export default router;

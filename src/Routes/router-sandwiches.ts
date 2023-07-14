@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import { body } from "express-validator";
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+const CryptoJS = require("crypto-js");
 import {
   Create_comment,
   Delete_comment,
@@ -9,6 +9,8 @@ import {
 } from "../handlers/comments";
 import { Update_Favourites } from "../handlers/favourites";
 import prisma from "../db";
+import { getOrder, getOrders } from "../handlers/orders";
+import { getUser_user } from "../handlers/user";
 
 const router = Router();
 
@@ -24,6 +26,8 @@ router.put("/comment/:id",
 
 router.delete("/comment/:id", Delete_comment);
 
+router.put("/update_user", );
+
 router.post("/comment",
     body("title").isString().isLength({ min: 3, max: 30 }),
     body("rating").isNumeric().isLength({ min: 1, max: 5 }),
@@ -31,7 +35,7 @@ router.post("/comment",
     body("belongsToSandwichId").isString(),
             Create_comment);
 
-router.post("/checkout", async (req ,res) => {
+router.post("/checkout", async (req: any ,res) => {
     try {
         const sandwiches = await prisma.sandwich.findMany({});
         const sandwich_orders = [];
@@ -45,7 +49,7 @@ router.post("/checkout", async (req ,res) => {
         });
         filtered_valid_orders.forEach((sandwich) => {
             sandwich_orders.push({
-                price: sandwich.stripePriceId,
+                price: CryptoJS.AES.decrypt(sandwich.stripePriceId, process.env.STRIPE_SECTET_ENCRYPT).toString(CryptoJS.enc.Utf8),
                 // @ts-ignore
                 quantity: sandwich.quantity,
             });
@@ -57,6 +61,16 @@ router.post("/checkout", async (req ,res) => {
             success_url: "http://localhost:5173/success",
             cancel_url: "http://localhost:5173/cancel",
         });
+
+        await prisma.order.create({
+            data: {
+               // @ts-ignore
+               total: filtered_valid_orders.reduce((acc, sandwich) => { return acc + sandwich.price * sandwich.quantity }, 0),
+               items: filtered_valid_orders.map((sandwich) => { return sandwich.id }),
+               userId: req.user.id,
+            },
+        });
+        
         res.send(JSON.stringify({ url: session.url }));
     } catch (e) {
         console.log(e);
@@ -64,6 +78,10 @@ router.post("/checkout", async (req ,res) => {
         res.send({ message: "No payment" });
         return;
     }
-}); 
+});
+
+router.get("/order/:id", getOrder);
+router.get("/orders", getOrders);
+router.get("/user", getUser_user);
 
 export default router;

@@ -33,6 +33,7 @@ model User_shop {
     postalCode      String
     country         String
     
+    orders          Order[]
     favouritesId      String[]        @default([])
     banned          Boolean          @default(false)
 }
@@ -51,12 +52,29 @@ model Sandwich {
     name            String
     description     String
     image           String
-    price           String
+    price           Float
     stripePriceId   String
     rating          Int              @default(0)
     numReviews      Int              @default(0)
     countInStock    Int              @default(0)
     comments        Comment[]
+}
+
+enum OrderStatus {
+    pending
+    processing
+    cancelled
+    completed
+}
+
+model Order {
+    id              String           @id @default(uuid())
+    createdAt       DateTime         @default(now())
+    total           Float
+    status          OrderStatus      @default(pending)
+    items           String[]
+    user            User_shop        @relation(fields: [userId], references: [id])
+    userId          String
 }
 
 model Comment {
@@ -71,5 +89,4 @@ model Comment {
     belongsToSandwichId String
     belongsToId     String
 }
-
 

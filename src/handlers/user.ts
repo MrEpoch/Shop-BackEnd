@@ -54,6 +54,7 @@ export const createNewUser_user = async (
     res.json({
       ACCESS_TOKEN: token.ACCESS_TOKEN,
       REFRESH_TOKEN: token.REFRESH_TOKEN,
+      user: user
     });
   } catch (e) {
     e.type = "signUp";
@@ -71,6 +72,9 @@ export const signIn_user = async (
       where: {
         name: req.body.name,
       },
+      include: {
+        orders: true,
+      }
     });
 
     if (!user) {
@@ -108,12 +112,54 @@ export const signIn_user = async (
     res.json({
       REFRESH_TOKEN: token.REFRESH_TOKEN,
       ACCESS_TOKEN: token.ACCESS_TOKEN,
+      user: user,
     });
   } catch (e) {
     e.type = "signIn";
     next(e);
   }
 };
+
+export const getUser_user = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = await prisma.user_shop.findMany({
+            where: {
+                id: req.params.id,
+            },
+            include: {
+                orders: true,
+            }
+        });
+        res.json(user);
+    } catch (e) {
+        e.type = "getUser";
+        next(e);
+    }
+};
+
+export const Delete_user_shop = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = await prisma.user_shop.delete({
+            where: {
+                id: req.params.id,
+            },
+        });
+
+        res.json(user);
+    } catch (e) {
+        e.type = "deleteUser";
+        next(e);
+    }
+}
+
 
 export const createNewUser_admin = async (
   req: Request,
@@ -242,9 +288,10 @@ export const token_refresh_shop = async (
         const accessToken = create_ACCESS_JWT({
           id: user.id,
           name: user.name,
-        }, process.env.ACCESS_TOKEN_SECRET);
-        res.json({ ACCESS_TOKEN: accessToken });
-      }
+        }, process.env.ACCESS_TOKEN_SECRET).then((accessToken) => {
+            res.json({ ACCESS_TOKEN: accessToken });
+        });
+        }
     );
   } catch (e) {
     e.type = "token_refresh";
