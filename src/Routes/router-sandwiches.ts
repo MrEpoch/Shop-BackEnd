@@ -14,7 +14,7 @@ import { getUser_user } from "../handlers/user";
 
 const router = Router();
 
-router.put("/favourite", 
+router.put("/favourites", 
     body("favourites").isArray(),
            Update_Favourites);
 

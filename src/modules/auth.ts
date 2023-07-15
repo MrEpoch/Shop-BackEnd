@@ -40,7 +40,7 @@ export const create_REFRESH_JWT = async (user: any, salt: string) => {
         name: user.name,
       },
       salt,
-      { expiresIn: "3d"}
+      { expiresIn: "2d"}
     );
 
     await prisma.refresh_token.create({
@@ -75,7 +75,8 @@ export const delete_REFRESH_TOKEN = async (token: string) => {
 };
 
 export const Invalidate_REFRESH_TOKEN = async (token: string) => {
-        const tokenStatus = await prisma.refresh_token.findUnique({
+    try {    
+    const tokenStatus = await prisma.refresh_token.findUnique({
             where: {
                 token: token
             },
@@ -97,6 +98,9 @@ export const Invalidate_REFRESH_TOKEN = async (token: string) => {
                 valid: false,
             },
         });
+    } catch (e) {
+        
+    }
 };
 
 export const protect_api_route = (req: any, res: Response, next: NextFunction) => {
@@ -158,7 +162,7 @@ export const protect_sandwich_route = (req: any, res: Response, next: NextFuncti
   } catch (e) {
     console.log(e);
     res.status(401);
-    res.send({ message: "Not authorized for connection" });
+    res.send({ message: e });
     return;
   }
 };

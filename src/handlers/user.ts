@@ -282,7 +282,7 @@ export const token_refresh_shop = async (
       (err: any, user: any) => {
         if (err) {
           res.status(403);
-          res.json({ message: "Invalid token" });
+          res.json({ message: err.name });
           return;
         }
         const accessToken = create_ACCESS_JWT({
@@ -346,3 +346,7 @@ export const token_refresh_admin = async (
     next(e);
   }
 };
+
+function handle_err(e) {
+
+}
