@@ -1,6 +1,7 @@
-import { Request, Router } from "express";
+import { Router } from "express";
 import { body } from "express-validator";
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const CryptoJS = require("crypto-js");
 import {
   Create_comment,
@@ -40,7 +41,7 @@ router.post("/checkout", async (req: any ,res) => {
         const sandwiches = await prisma.sandwich.findMany({});
         const sandwich_orders = [];
         const filtered_valid_orders = sandwiches.filter((sandwich) => {
-            const query = req.body.find((sandwich_front_end: any) => sandwich.id === sandwich_front_end.id);
+            const query = req.body.order.find((sandwich_front_end: any) => sandwich.id === sandwich_front_end.id);
             if (query) {
                 // @ts-ignore
                 sandwich.quantity = query.quantity;
@@ -60,6 +61,8 @@ router.post("/checkout", async (req: any ,res) => {
             mode: "payment",
             success_url: "http://localhost:5173/success",
             cancel_url: "http://localhost:5173/cancel",
+        }, {
+            apiKey: process.env.STRIPE_SECRET_KEY,
         });
 
         await prisma.order.create({
@@ -83,5 +86,8 @@ router.post("/checkout", async (req: any ,res) => {
 router.get("/order/:id", getOrder);
 router.get("/orders", getOrders);
 router.get("/user", getUser_user);
+
+router.delete("order/:id", );
+router.delete("user/:id", );
 
 export default router;

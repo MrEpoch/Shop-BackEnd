@@ -2,7 +2,6 @@ import { Router, Request } from "express";
 import { body } from "express-validator";
 import { handleError } from "../modules/middleware";
 import multer from "multer";
-import path from "path";
 import { CreateSandwich, DeleteSandwich, UpdateSandwich, allSandwiches, getSandwich, UpdateSandwich_noImage } from "../handlers/sandwich";
 import { Delete_user_shop, createNewUser_admin } from "../handlers/user";
 

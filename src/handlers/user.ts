@@ -346,7 +346,3 @@ export const token_refresh_admin = async (
     next(e);
   }
 };
-
-function handle_err(e) {
-
-}
