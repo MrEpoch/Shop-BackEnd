@@ -8,7 +8,8 @@
     "dev_auth_user": "ts-node src/index_auth__user.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
-    "start_auth": "node dist/index_auth.js"
+    "start_auth": "node dist/index_auth.js",
+    "start_auth_admin": "node dist/index_auth__user.js"
   },
   "devDependencies": {
     "@prisma/client": "^4.16.2",
